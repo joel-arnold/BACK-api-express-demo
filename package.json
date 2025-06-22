@@ -1,0 +1,21 @@
+{
+  "name": "api-express-demo",
+  "version": "1.0.0",
+  "description": "API Express Demo para enseñanza - UTN",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["express", "nodejs", "api", "demo", "utn"],
+  "author": "UTN - Desarrollo de Software",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
