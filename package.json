@@ -6,14 +6,24 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
+    "seed": "node src/utils/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["express", "nodejs", "api", "demo", "utn"],
+  "keywords": [
+    "express",
+    "nodejs",
+    "api",
+    "demo",
+    "utn"
+  ],
   "author": "UTN - Desarrollo de Software",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "express": "^5.1.0"
+    "@mikro-orm/core": "^6.4.16",
+    "@mikro-orm/mysql": "^6.4.16",
+    "express": "^5.1.0",
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

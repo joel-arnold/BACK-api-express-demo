@@ -1,62 +1,82 @@
-// Datos simulados (en lugar de una DB)
-let users = [
-  { id: 1, name: "Alice", email: "alice@example.com" },
-  { id: 2, name: "Bob", email: "bob@example.com" },
-  { id: 3, name: "Carlos", email: "carlos@example.com" },
-];
+const { User } = require('../entities/User');
 
-// Variable para generar IDs únicos
-let nextId = 4;
-
-const getAllUsers = () => {
-  return users;
+const getAllUsers = async () => {
+  const em = global.orm.em.fork();
+  return await em.find(User, {});
 };
 
-const getUserById = (id) => {
-  return users.find(user => user.id === parseInt(id));
+const getUserById = async (id) => {
+  const em = global.orm.em.fork();
+  return await em.findOne(User, { id: parseInt(id) });
 };
 
-const createUser = (userData) => {
+const createUser = async (userData) => {
   // Validación básica
   if (!userData.name || !userData.email) {
     throw new Error('Nombre y email son requeridos');
   }
   
+  const em = global.orm.em.fork();
+  
   // Verificar si el email ya existe
-  const existingUser = users.find(user => user.email === userData.email);
+  const existingUser = await em.findOne(User, { email: userData.email });
   if (existingUser) {
     throw new Error('El email ya está registrado');
   }
   
-  const newUser = {
-    id: nextId++,
-    name: userData.name,
-    email: userData.email
-  };
+  // Crear nuevo usuario
+  const newUser = new User(userData.name, userData.email);
   
-  users.push(newUser);
+  // Asegurar que los timestamps estén establecidos
+  newUser.createdAt = new Date();
+  newUser.updatedAt = new Date();
+  
+  // Persistir en la base de datos
+  await em.persistAndFlush(newUser);
+  
   return newUser;
 };
 
-const updateUser = (id, userData) => {
-  const userIndex = users.findIndex(user => user.id === parseInt(id));
-  if (userIndex === -1) {
+const updateUser = async (id, userData) => {
+  const em = global.orm.em.fork();
+  
+  const user = await em.findOne(User, { id: parseInt(id) });
+  if (!user) {
     return null;
   }
   
-  users[userIndex] = { ...users[userIndex], ...userData };
-  return users[userIndex];
+  // Actualizar los campos proporcionados
+  if (userData.name !== undefined) {
+    user.name = userData.name;
+  }
+  if (userData.email !== undefined) {
+    // Verificar si el nuevo email ya existe (excepto el usuario actual)
+    const existingUser = await em.findOne(User, { 
+      email: userData.email,
+      id: { $ne: parseInt(id) }
+    });
+    if (existingUser) {
+      throw new Error('El email ya está registrado');
+    }
+    user.email = userData.email;
+  }
+  
+  user.updatedAt = new Date();
+  
+  await em.persistAndFlush(user);
+  return user;
 };
 
-const deleteUser = (id) => {
-  const userIndex = users.findIndex(user => user.id === parseInt(id));
-  if (userIndex === -1) {
+const deleteUser = async (id) => {
+  const em = global.orm.em.fork();
+  
+  const user = await em.findOne(User, { id: parseInt(id) });
+  if (!user) {
     return null;
   }
   
-  const deletedUser = users[userIndex];
-  users.splice(userIndex, 1);
-  return deletedUser;
+  await em.removeAndFlush(user);
+  return user;
 };
 
 module.exports = {

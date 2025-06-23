@@ -1,8 +1,8 @@
 const userService = require('../services/user.service');
 
-const getUsers = (req, res) => {
+const getUsers = async (req, res) => {
   try {
-    const users = userService.getAllUsers();
+    const users = await userService.getAllUsers();
     const response = {
       success: true,
       data: users,
@@ -11,6 +11,7 @@ const getUsers = (req, res) => {
 
     res.json(response);
   } catch (error) {
+    console.error('Error en getUsers:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error interno del servidor' 
@@ -18,9 +19,9 @@ const getUsers = (req, res) => {
   }
 };
 
-const getUser = (req, res) => {
+const getUser = async (req, res) => {
   try {
-    const user = userService.getUserById(req.params.id);
+    const user = await userService.getUserById(req.params.id);
     if (!user) {
       return res.status(404).json({ 
         success: false,
@@ -32,6 +33,7 @@ const getUser = (req, res) => {
       data: user
     });
   } catch (error) {
+    console.error('Error en getUser:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error interno del servidor' 
@@ -39,7 +41,7 @@ const getUser = (req, res) => {
   }
 };
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
   try {
     // Validación manual de datos requeridos
     const { name, email } = req.body;
@@ -67,13 +69,14 @@ const createUser = (req, res) => {
       });
     }
     
-    const newUser = userService.createUser({ name, email });
+    const newUser = await userService.createUser({ name, email });
     res.status(201).json({
       success: true,
       data: newUser,
       message: 'Usuario creado exitosamente'
     });
   } catch (error) {
+    console.error('Error en createUser:', error);
     if (error.message.includes('requeridos') || error.message.includes('registrado')) {
       return res.status(400).json({
         success: false,
@@ -87,9 +90,9 @@ const createUser = (req, res) => {
   }
 };
 
-const updateUser = (req, res) => {
+const updateUser = async (req, res) => {
   try {
-    const updatedUser = userService.updateUser(req.params.id, req.body);
+    const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (!updatedUser) {
       return res.status(404).json({ 
         success: false,
@@ -102,6 +105,13 @@ const updateUser = (req, res) => {
       message: 'Usuario actualizado exitosamente'
     });
   } catch (error) {
+    console.error('Error en updateUser:', error);
+    if (error.message.includes('registrado')) {
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
     res.status(500).json({ 
       success: false,
       error: 'Error interno del servidor' 
@@ -109,9 +119,9 @@ const updateUser = (req, res) => {
   }
 };
 
-const deleteUser = (req, res) => {
+const deleteUser = async (req, res) => {
   try {
-    const deletedUser = userService.deleteUser(req.params.id);
+    const deletedUser = await userService.deleteUser(req.params.id);
     if (!deletedUser) {
       return res.status(404).json({ 
         success: false,
@@ -124,6 +134,7 @@ const deleteUser = (req, res) => {
       message: 'Usuario eliminado exitosamente'
     });
   } catch (error) {
+    console.error('Error en deleteUser:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error interno del servidor' 
