@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-/// <reference path="./types/global.d.ts" />
 import express, { Request, Response, NextFunction } from 'express';
 import { RequestContext } from '@mikro-orm/core';
 import DatabaseManager from './database/DatabaseManager';
