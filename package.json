@@ -2,12 +2,12 @@
   "name": "api-express-demo",
   "version": "1.0.0",
   "description": "API Express Demo para enseñanza - UTN",
-  "main": "src/app.js",
+  "main": "dist/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
-    "seed": "node src/utils/seed.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "ts-node src/app.ts",
+    "dev:watch": "nodemon --exec ts-node src/app.ts"
   },
   "keywords": [
     "express",
@@ -26,6 +26,9 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.7",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2"
   }
 }

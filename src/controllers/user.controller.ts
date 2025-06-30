@@ -1,9 +1,18 @@
-const userService = require('../services/user.service');
+import { Request, Response } from 'express';
+import * as userService from '../services/user.service';
 
-const getUsers = async (req, res) => {
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+  total?: number;
+}
+
+export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await userService.getAllUsers();
-    const response = {
+    const response: ApiResponse<typeof users> = {
       success: true,
       data: users,
       total: users.length
@@ -19,14 +28,15 @@ const getUsers = async (req, res) => {
   }
 };
 
-const getUser = async (req, res) => {
+export const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await userService.getUserById(req.params.id);
     if (!user) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         error: "Usuario no encontrado" 
       });
+      return;
     }
     res.json({
       success: true,
@@ -41,32 +51,35 @@ const getUser = async (req, res) => {
   }
 };
 
-const createUser = async (req, res) => {
+export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     // Validación manual de datos requeridos
     const { name, email } = req.body;
     
     if (!name) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'El campo "name" es requerido'
       });
+      return;
     }
     
     if (!email) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'El campo "email" es requerido'
       });
+      return;
     }
     
     // Validación básica de formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'El formato del email no es válido'
       });
+      return;
     }
     
     const newUser = await userService.createUser({ name, email });
@@ -75,13 +88,14 @@ const createUser = async (req, res) => {
       data: newUser,
       message: 'Usuario creado exitosamente'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error en createUser:', error);
     if (error.message.includes('requeridos') || error.message.includes('registrado')) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: error.message
       });
+      return;
     }
     res.status(500).json({ 
       success: false,
@@ -90,27 +104,29 @@ const createUser = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (!updatedUser) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         error: "Usuario no encontrado" 
       });
+      return;
     }
     res.json({
       success: true,
       data: updatedUser,
       message: 'Usuario actualizado exitosamente'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error en updateUser:', error);
     if (error.message.includes('registrado')) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: error.message
       });
+      return;
     }
     res.status(500).json({ 
       success: false,
@@ -119,14 +135,15 @@ const updateUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const deletedUser = await userService.deleteUser(req.params.id);
     if (!deletedUser) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         error: "Usuario no encontrado" 
       });
+      return;
     }
     res.json({
       success: true,
@@ -140,12 +157,4 @@ const deleteUser = async (req, res) => {
       error: 'Error interno del servidor' 
     });
   }
-};
-
-module.exports = {
-  getUsers,
-  getUser,
-  createUser,
-  updateUser,
-  deleteUser,
 };

@@ -1,26 +1,28 @@
-# API Express Demo - UTN
+# API Express Demo - UTN (TypeScript)
 
-Este proyecto es una demostración de cómo crear una API REST con Node.js, Express y MikroORM con persistencia en MySQL.
+Este proyecto es una demostración de cómo crear una API REST con Node.js, Express, TypeScript y MikroORM con persistencia en MySQL.
 
 ## 🚀 Características
 
+- **TypeScript**: Tipado estático para mayor seguridad y productividad
 - **Arquitectura por capas**: Separación clara de responsabilidades
 - **CRUD completo**: Crear, leer, actualizar y eliminar usuarios
-- **Persistencia en base de datos**: Uso de MySQL con MikroORM
-- **Validación**: Validaciones tanto en controladores como en servicios
+- **Persistencia en base de datos**: Uso de MySQL con MikroORM y decoradores
+- **Validación tipada**: Validaciones tanto en controladores como en servicios
 - **Middleware personalizado**: Logger para tracking de requests
-- **Manejo de errores**: Respuestas consistentes y manejo de errores
-- **ORM moderno**: MikroORM con decoradores para mapeo de entidades
+- **Manejo de errores**: Respuestas consistentes y manejo de errores tipado
+- **ORM moderno**: MikroORM con decoradores TypeScript para mapeo de entidades
 
 ## 🗄️ Configuración de Base de Datos
 
 ### Prerrequisitos
 1. MySQL Server instalado y ejecutándose
 2. MySQL Workbench (recomendado para administración)
+3. Node.js 16+ con soporte para TypeScript
 
 ### Configuración
 1. Crear una base de datos llamada `api-express-demo` en MySQL
-2. Configurar las credenciales en `src/config/mikro-orm.config.js`:
+2. Configurar las credenciales en `src/config/mikro-orm.config.ts`:
    - Host: localhost
    - Puerto: 3306
    - Usuario: root
@@ -28,26 +30,28 @@ Este proyecto es una demostración de cómo crear una API REST con Node.js, Expr
 
 ### Verificar Conexión
 ```bash
-node test-db.js
+npx ts-node test-db.ts
 ```
 
 ## 📁 Estructura del Proyecto
 
 ```
 src/
-├── config/            # Configuraciones
-│   └── mikro-orm.config.js
-├── controllers/       # Manejo de req/res HTTP
-│   └── user.controller.js
-├── entities/          # Entidades de la base de datos
-│   └── User.js
-├── services/          # Lógica de negocio
-│   └── user.service.js
-├── routes/            # Definición de rutas
-│   └── user.routes.js
-├── utils/             # Utilidades
-│   └── seed.js
-└── app.js             # Punto de entrada
+├── config/            # Configuraciones TypeScript
+│   └── mikro-orm.config.ts
+├── controllers/       # Manejo de req/res HTTP tipado
+│   └── user.controller.ts
+├── entities/          # Entidades con decoradores TypeScript
+│   └── User.ts
+├── helpers/           # Utilidades tipadas
+│   └── response.helper.ts
+├── routes/            # Definición de rutas tipadas
+│   └── user.routes.ts
+├── services/          # Lógica de negocio tipada
+│   └── user.service.ts
+├── types/             # Tipos globales
+│   └── global.d.ts
+└── app.ts             # Punto de entrada TypeScript
 ```
 
 ## 🛠️ Instalación y Ejecución
@@ -133,22 +137,33 @@ Cliente → Ruta → Controller → Service → Base de Datos (MySQL) → Respue
 
 ## 🗃️ Base de Datos
 
-### Entidad User
-```javascript
-{
-  id: number (auto-increment, primary key),
-  name: string,
-  email: string (unique),
-  createdAt: Date,
-  updatedAt: Date
+### Entidad User (TypeScript)
+```typescript
+@Entity({ tableName: 'users' })
+export class User {
+  @PrimaryKey()
+  id!: number;
+
+  @Property()
+  name!: string;
+
+  @Property({ unique: true })
+  email!: string;
+
+  @Property({ fieldName: 'created_at' })
+  createdAt: Date = new Date();
+
+  @Property({ fieldName: 'updated_at', onUpdate: () => new Date() })
+  updatedAt: Date = new Date();
 }
 ```
 
 ### Scripts Disponibles
 ```bash
-npm run dev     # Ejecutar en modo desarrollo con nodemon
-npm start       # Ejecutar en modo producción
-npm run seed    # Poblar la base de datos con datos de ejemplo
+npm run build       # Compilar TypeScript a JavaScript
+npm run dev         # Ejecutar en modo desarrollo con ts-node
+npm run dev:watch   # Ejecutar con nodemon y recarga automática
+npm start           # Ejecutar versión compilada en producción
 ```
 
 ## 📚 Para Estudiantes
@@ -166,17 +181,29 @@ Este proyecto demuestra:
 ## 🔧 Tecnologías Utilizadas
 
 - **Node.js**: Runtime de JavaScript
-- **Express**: Framework web minimalista
-- **MikroORM**: ORM moderno para Node.js
+- **TypeScript**: Superset tipado de JavaScript
+- **Express**: Framework web minimalista con tipos
+- **MikroORM**: ORM moderno para TypeScript/Node.js
 - **MySQL**: Sistema de gestión de bases de datos relacionales
 - **Reflect Metadata**: Para soporte de decoradores
-- **Nodemon**: Auto-reload durante desarrollo
+- **ts-node**: Ejecución directa de TypeScript en desarrollo
+- **Nodemon**: Auto-recarga durante el desarrollo
 
 ## 🚀 Instalación y Ejecución
 
 1. **Clonar el repositorio**
 2. **Instalar dependencias**: `npm install`
 3. **Configurar MySQL**: Crear base de datos "api-express-demo"
-4. **Verificar conexión**: `node test-db.js`
-5. **Poblar datos iniciales**: `npm run seed` (opcional)
-6. **Ejecutar**: `npm run dev`
+4. **Verificar conexión**: `npx ts-node test-db.ts`
+5. **Ejecutar en desarrollo**: `npm run dev`
+6. **Compilar para producción**: `npm run build`
+7. **Ejecutar producción**: `npm start`
+
+## 💡 Ventajas de TypeScript
+
+- ✅ **Tipado estático**: Prevención de errores en tiempo de compilación
+- ✅ **IntelliSense mejorado**: Mejor autocompletado en IDEs
+- ✅ **Refactoring seguro**: Cambios con confianza
+- ✅ **Decoradores nativos**: Uso pleno de MikroORM
+- ✅ **Interfaces**: Contratos claros entre capas
+- ✅ **Mejor documentación**: Código autodocumentado

@@ -1,7 +1,8 @@
-const { MySqlDriver } = require('@mikro-orm/mysql');
-const { UserSchema } = require('../entities/User');
+import { Options } from '@mikro-orm/core';
+import { MySqlDriver } from '@mikro-orm/mysql';
+import { User } from '../entities/User';
 
-const mikroOrmConfig = {
+const config: Options<MySqlDriver> = {
   driver: MySqlDriver,
   host: 'localhost',
   port: 3306,
@@ -11,10 +12,13 @@ const mikroOrmConfig = {
   charset: 'utf8mb4',
   debug: process.env.NODE_ENV !== 'production',
   allowGlobalContext: true,
-  entities: [UserSchema],
+  entities: [User],
   discovery: {
     warnWhenNoEntities: false,
   },
+  migrations: {
+    path: './src/migrations',
+  },
 };
 
-module.exports = mikroOrmConfig;
+export default config;
