@@ -4,10 +4,11 @@
   "description": "API Express Demo para enseñanza - UTN",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "start": "node dist/app.js",
     "dev": "ts-node src/app.ts",
-    "dev:watch": "nodemon --exec ts-node src/app.ts"
+    "dev:watch": "nodemon --exec ts-node src/app.ts",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "express",
@@ -30,6 +31,7 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.7",
     "nodemon": "^3.1.10",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
