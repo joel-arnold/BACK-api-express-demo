@@ -1,3 +1,8 @@
+// ! Si las variables de entorno no se cargan al inicio, mikro-orm no podrá conectarse a la base de datos.
+import dotenv from 'dotenv'
+dotenv.config()
+ // ! Asegúrate de que las variables de entorno estén definidas en un archivo .env o en el entorno del sistema.
+
 import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
 import { RequestContext } from '@mikro-orm/core';
