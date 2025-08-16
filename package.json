@@ -7,8 +7,7 @@
     "build": "rm -rf dist && tsc",
     "start": "node dist/app.js",
     "dev": "ts-node src/app.ts",
-    "dev:watch": "nodemon --exec ts-node src/app.ts",
-    "postinstall": "npm run build"
+    "dev:watch": "nodemon --exec ts-node src/app.ts"
   },
   "keywords": [
     "express",
@@ -23,15 +22,15 @@
   "dependencies": {
     "@mikro-orm/core": "^6.4.16",
     "@mikro-orm/mysql": "^6.4.16",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "reflect-metadata": "^0.2.2"
-  },
-  "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.7",
-    "nodemon": "^3.1.10",
-    "ts-node": "^10.9.2",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "reflect-metadata": "^0.2.2",
     "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2"
   }
 }
