@@ -1,14 +1,17 @@
 import DatabaseManager from '../database/DatabaseManager';
 import { User } from '../entities/User';
+import { hashPassword } from './auth.service';
 
 interface CreateUserData {
   name: string;
   email: string;
+  password: string;
 }
 
 interface UpdateUserData {
   name?: string;
   email?: string;
+  password?: string;
 }
 
 const dbManager = DatabaseManager.getInstance();
@@ -27,8 +30,8 @@ export const getUserById = async (id: string): Promise<User | null> => {
 
 export const createUser = async (userData: CreateUserData): Promise<User> => {
   // Validación básica
-  if (!userData.name || !userData.email) {
-    throw new Error('Nombre y email son requeridos');
+  if (!userData.name || !userData.email || !userData.password) {
+    throw new Error('Nombre, email y contraseña son requeridos');
   }
   
   const orm = dbManager.getORM();
@@ -40,8 +43,11 @@ export const createUser = async (userData: CreateUserData): Promise<User> => {
     throw new Error('El email ya está registrado');
   }
   
+  // Encriptar la contraseña
+  const hashedPassword = await hashPassword(userData.password);
+  
   // Crear nuevo usuario
-  const newUser = new User(userData.name, userData.email);
+  const newUser = new User(userData.name, userData.email, hashedPassword);
   
   // Asegurar que los timestamps estén establecidos
   newUser.createdAt = new Date();
@@ -76,6 +82,12 @@ export const updateUser = async (id: string, userData: UpdateUserData): Promise<
       throw new Error('El email ya está registrado');
     }
     user.email = userData.email;
+  }
+  
+  if (userData.password !== undefined) {
+    // Encriptar la nueva contraseña
+    const hashedPassword = await hashPassword(userData.password);
+    user.password = hashedPassword;
   }
   
   user.updatedAt = new Date();

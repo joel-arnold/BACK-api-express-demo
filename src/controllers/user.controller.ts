@@ -51,11 +51,12 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// Controlador para crear un nuevo usuario
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Validación manual de datos requeridos
-    const { name, email } = req.body;
-    
+    const { name, email, password } = req.body;
+
+    // Validaciones básicas
     if (!name) {
       res.status(400).json({
         success: false,
@@ -63,11 +64,19 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       });
       return;
     }
-    
+
     if (!email) {
       res.status(400).json({
         success: false,
         error: 'El campo "email" es requerido'
+      });
+      return;
+    }
+    
+    if (!password) {
+      res.status(400).json({
+        success: false,
+        error: 'El campo "password" es requerido'
       });
       return;
     }
@@ -82,7 +91,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       return;
     }
     
-    const newUser = await userService.createUser({ name, email });
+    const newUser = await userService.createUser({ name, email, password });
     res.status(201).json({
       success: true,
       data: newUser,
@@ -90,7 +99,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
     });
   } catch (error: any) {
     console.error('Error en createUser:', error);
-    if (error.message.includes('requeridos') || error.message.includes('registrado')) {
+    if (error.message.includes('registrado')) {
       res.status(400).json({
         success: false,
         error: error.message

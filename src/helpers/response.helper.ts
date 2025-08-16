@@ -43,4 +43,8 @@ export class ResponseHelper {
   static created<T>(res: Response, data: T, message?: string): void {
     this.success(res, data, message, 201);
   }
+
+  static unauthorized(res: Response, message: string = 'No autorizado'): void {
+    this.error(res, message, 401);
+  }
 }

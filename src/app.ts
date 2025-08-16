@@ -1,13 +1,12 @@
-// ! Si las variables de entorno no se cargan al inicio, mikro-orm no podrá conectarse a la base de datos.
 import dotenv from 'dotenv'
 dotenv.config()
- // ! Asegúrate de que las variables de entorno estén definidas en un archivo .env o en el entorno del sistema.
 
 import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
 import { RequestContext } from '@mikro-orm/core';
 import DatabaseManager from './database/DatabaseManager';
-import userRoutes from './routes/user.routes';
+import routes from './routes';
+import messages from './catalogs/messages.json';
 
 const app = express();
 const dbManager = DatabaseManager.getInstance();
@@ -27,16 +26,7 @@ app.use(logger);
 
 // Ruta de prueba en la raíz
 app.get('/', (req: Request, res: Response) => {
-  res.json({ 
-    message: 'API Express Demo - UTN',
-    endpoints: {
-      users: 'GET /users',
-      user: 'GET /users/:id',
-      createUser: 'POST /users',
-      updateUser: 'PUT /users/:id',
-      deleteUser: 'DELETE /users/:id'
-    }
-  });
+  res.json(messages.welcomeMessage);
 });
 
 const PORT = 3000;
@@ -53,7 +43,7 @@ const initializeApp = async (): Promise<void> => {
     });
     
     // Configurar rutas después de inicializar la BD
-    app.use('/users', userRoutes);
+    app.use('/api', routes);
     
     // Iniciar el servidor
     app.listen(PORT, () => {
