@@ -24,7 +24,7 @@ Esta implementación añade autenticación JWT al proyecto Express demo.
 ### 1. Variables de entorno (.env)
 ```env
 JWT_SECRET=tu-clave-secreta-super-segura-aqui-cambiar-en-produccion
-JWT_EXPIRES_IN=24h
+JWT_EXPIRES_IN=1h
 ```
 
 ### 2. Migración de base de datos

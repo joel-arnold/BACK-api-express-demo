@@ -2,6 +2,7 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import DatabaseManager from '../database/DatabaseManager';
 import { User } from '../entities/User';
+import { RegexHelper } from '../helpers/regex.helper';
 
 interface LoginData {
   email: string;
@@ -36,7 +37,7 @@ const getJWTSecret = (): string => {
 
 // Obtener el tiempo de expiración del JWT
 const getJWTExpiresIn = (): string => {
-  return process.env.JWT_EXPIRES_IN || '24h';
+  return process.env.JWT_EXPIRES_IN || '1h';
 };
 
 // Generar un token JWT
@@ -76,13 +77,16 @@ export const register = async (userData: RegisterData): Promise<AuthResponse> =>
     throw new Error('Nombre, email y contraseña son requeridos');
   }
 
-  if (userData.password.length < 6) {
+  if (!RegexHelper.isValidName(userData.name)) {
+    throw new Error('El nombre de usuario no es válido');
+  }
+
+  if (!RegexHelper.isValidPassword(userData.password)) {
     throw new Error('La contraseña debe tener al menos 6 caracteres');
   }
 
   // Validar formato de email básico
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(userData.email)) {
+  if (!RegexHelper.isValidEmail(userData.email)) {
     throw new Error('El formato del email no es válido');
   }
 
