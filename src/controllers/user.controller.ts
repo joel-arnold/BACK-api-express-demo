@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import * as userService from '../services/user.service';
 import { ResponseHelper } from '../helpers/response.helper';
-import { RegexHelper } from '../helpers/regex.helper';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {

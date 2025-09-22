@@ -1,3 +1,5 @@
+// ! Actualmente en desuso, pero puede ser útil en el futuro
+
 /**
  * Helper para expresiones regulares reutilizables
  */

@@ -17,7 +17,7 @@ export function validate({ location = 'body', schema, abortEarly = false, stripU
       const data = req[location as keyof Request];
       const value = await schema.validateAsync(data, { abortEarly, stripUnknown });
 
-      // Reemplazar con la versión sanitizada
+      // Reemplazo con la versión sanitizada
       // @ts-ignore - index signature para Request
       req[location] = value;
       next();

@@ -22,34 +22,36 @@ const email = Joi.string().trim().email({ tlds: { allow: false } }).required().m
   'any.required': 'El email es requerido'
 });
 
+const password = Joi.string().min(6).max(18).required().messages({
+  'string.base': 'La contraseña debe ser un texto',
+  'string.empty': 'La contraseña es requerida',
+  'string.min': 'La contraseña debe tener al menos {#limit} caracteres',
+  'string.max': 'La contraseña no puede superar {#limit} caracteres',
+  'any.required': 'La contraseña es requerida'
+});
+
 // Esquemas
 export const createUserSchema = Joi.object({
   name,
-  email
+  email,
+  password
 });
 
 export const registerUserSchema = Joi.object({
   name,
-  email
+  email,
+  password
 });
 
 export const loginUserSchema = Joi.object({
-  name,
-  email
+  email,
+  password
 });
 
 export const updateUserSchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).messages({
-    'string.base': 'El nombre debe ser un texto',
-    'string.min': 'El nombre debe tener al menos {#limit} caracteres',
-    'string.max': 'El nombre no puede superar {#limit} caracteres'
-  }),
-  email: Joi.string().trim().email({ tlds: { allow: false } }).messages({
-    'string.base': 'El email debe ser un texto',
-    'string.email': 'El formato del email no es válido'
-  })
-}).min(1).messages({
-  'object.min': 'Debe enviar al menos un campo para actualizar'
+  name,
+  email,
+  password
 });
 
 export const idParamSchema = Joi.object({

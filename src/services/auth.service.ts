@@ -2,7 +2,6 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import DatabaseManager from '../database/DatabaseManager';
 import { User } from '../entities/User';
-import { RegexHelper } from '../helpers/regex.helper';
 
 interface LoginData {
   email: string;
@@ -72,24 +71,6 @@ export const comparePassword = async (password: string, hashedPassword: string):
 
 // Registrar un nuevo usuario
 export const register = async (userData: RegisterData): Promise<AuthResponse> => {
-  // Validaciones básicas
-  if (!userData.name || !userData.email || !userData.password) {
-    throw new Error('Nombre, email y contraseña son requeridos');
-  }
-
-  if (!RegexHelper.isValidName(userData.name)) {
-    throw new Error('El nombre de usuario no es válido');
-  }
-
-  if (!RegexHelper.isValidPassword(userData.password)) {
-    throw new Error('La contraseña debe tener al menos 6 caracteres');
-  }
-
-  // Validar formato de email básico
-  if (!RegexHelper.isValidEmail(userData.email)) {
-    throw new Error('El formato del email no es válido');
-  }
-
   const orm = dbManager.getORM();
   const em = orm.em.fork();
 
