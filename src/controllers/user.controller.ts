@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import * as userService from '../services/user.service';
 import { ResponseHelper } from '../helpers/response.helper';
-import { RegexHelper } from '../helpers/regex.helper';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -31,30 +30,8 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password } = req.body;
-
-    // Validaciones básicas
-    if (!name) {
-      ResponseHelper.badRequest(res, 'El campo "name" es requerido');
-      return;
-    }
-
-    if (!email) {
-      ResponseHelper.badRequest(res, 'El campo "email" es requerido');
-      return;
-    }
-    
-    if (!password) {
-      ResponseHelper.badRequest(res, 'El campo "password" es requerido');
-      return;
-    }
-    
-    // Validación básica de formato de email usando RegexHelper
-    if (!RegexHelper.isValidEmail(email)) {
-      ResponseHelper.badRequest(res, 'El formato del email no es válido');
-      return;
-    }
-    
     const newUser = await userService.createUser({ name, email, password });
+
     ResponseHelper.created(res, newUser, 'Usuario creado exitosamente');
   } catch (error: any) {
     console.error('Error en createUser:', error);

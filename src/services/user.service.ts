@@ -19,6 +19,7 @@ const dbManager = DatabaseManager.getInstance();
 export const getAllUsers = async (): Promise<User[]> => {
   const orm = dbManager.getORM();
   const em = orm.em.fork();
+  // Por defecto, el filtro softDelete está activo y excluye registros con deletedAt != null
   return await em.find(User, {});
 };
 
@@ -29,18 +30,18 @@ export const getUserById = async (id: string): Promise<User | null> => {
 };
 
 export const createUser = async (userData: CreateUserData): Promise<User> => {
-  // Validación básica
-  if (!userData.name || !userData.email || !userData.password) {
-    throw new Error('Nombre, email y contraseña son requeridos');
-  }
-  
   const orm = dbManager.getORM();
   const em = orm.em.fork();
   
   // Verificar si el email ya existe
-  const existingUser = await em.findOne(User, { email: userData.email });
+  // Buscar incluyendo potenciales registros borrados (para decidir si permitir reuso de email)
+  const existingUser = await em.findOne(User, { email: userData.email }, { filters: { softDelete: false } });
   if (existingUser) {
-    throw new Error('El email ya está registrado');
+    // Si existe y no está borrado lógicamente, no permitir duplicado
+    if (!existingUser.deletedAt) {
+      throw new Error('El email ya está registrado');
+    }
+    // Si está borrado lógicamente, permitir reusar el email (opcional: también podríamos restaurar)
   }
   
   // Encriptar la contraseña
@@ -74,13 +75,16 @@ export const updateUser = async (id: string, userData: UpdateUserData): Promise<
   }
   if (userData.email !== undefined) {
     // Verificar si el nuevo email ya existe (excepto el usuario actual)
-    const existingUser = await em.findOne(User, { 
-      email: userData.email,
-      id: { $ne: parseInt(id) }
-    });
+    const existingUser = await em.findOne(User, { email: userData.email, id: { $ne: parseInt(id) } }, { filters: { softDelete: false } });
+    
     if (existingUser) {
+      if (existingUser.deletedAt !== null) {
+        throw new Error('El email ya está registrado en usuario eliminado');
+      }
+
       throw new Error('El email ya está registrado');
     }
+    
     user.email = userData.email;
   }
   
@@ -100,11 +104,15 @@ export const deleteUser = async (id: string): Promise<User | null> => {
   const orm = dbManager.getORM();
   const em = orm.em.fork();
   
-  const user = await em.findOne(User, { id: parseInt(id) });
+  // Incluir también los borrados para poder retornar 404 si no existe en absoluto
+  const user = await em.findOne(User, { id: parseInt(id) }, { filters: { softDelete: false } });
   if (!user) {
     return null;
   }
   
-  await em.removeAndFlush(user);
+  // Borrado lógico
+  user.deletedAt = new Date();
+  user.updatedAt = new Date();
+  await em.persistAndFlush(user);
   return user;
 };

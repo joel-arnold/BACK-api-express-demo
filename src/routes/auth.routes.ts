@@ -1,14 +1,16 @@
 import express from 'express';
 import * as authController from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validate';
+import { registerUserSchema, loginUserSchema } from '../schemas/user.schema';
 
 const router = express.Router();
 
 // POST /auth/register - Registrar un nuevo usuario
-router.post('/register', authController.register);
+router.post('/register', validate({ location: 'body', schema: registerUserSchema }), authController.register);
 
 // POST /auth/login - Iniciar sesión
-router.post('/login', authController.login);
+router.post('/login', validate({ location: 'body', schema: loginUserSchema }), authController.login);
 
 // GET /auth/profile - Obtener perfil del usuario autenticado (requiere autenticación)
 router.get('/profile', authMiddleware, authController.getProfile);

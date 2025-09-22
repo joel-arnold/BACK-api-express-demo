@@ -29,6 +29,9 @@ app.get('/', (req: Request, res: Response) => {
   res.json(messages.welcomeMessage);
 });
 
+// ✅ Configurar rutas INMEDIATAMENTE (antes de la BD)
+app.use('/api', routes);
+
 const PORT = 3000;
 
 // Función para inicializar la aplicación
@@ -37,13 +40,12 @@ const initializeApp = async (): Promise<void> => {
     // Inicializar la base de datos
     const orm = await dbManager.initialize();
     
-    // Configurar middleware de RequestContext después de inicializar la BD
+    // ✅ Insertar el middleware de RequestContext ANTES de las rutas existentes
     app.use((req: Request, res: Response, next: NextFunction) => {
       RequestContext.create(orm.em, next);
     });
     
-    // Configurar rutas después de inicializar la BD
-    app.use('/api', routes);
+    // Las rutas ya están configuradas arriba, pero ahora tendrán acceso al RequestContext
     
     // Iniciar el servidor
     app.listen(PORT, () => {

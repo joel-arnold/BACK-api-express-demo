@@ -1,5 +1,6 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Filter } from '@mikro-orm/core';
 
+@Filter({ name: 'softDelete', cond: { deletedAt: null }, default: true })
 @Entity({ tableName: 'users' })
 export class User {
   @PrimaryKey()
@@ -11,7 +12,7 @@ export class User {
   @Property({ unique: true })
   email!: string;
 
-  @Property({ hidden: true }) // No se incluye en la serialización por defecto
+  @Property({ hidden: true })
   password!: string;
 
   @Property({ fieldName: 'created_at' })
@@ -19,6 +20,9 @@ export class User {
 
   @Property({ fieldName: 'updated_at', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
+
+  @Property({ fieldName: 'deleted_at', nullable: true })
+  deletedAt: Date | null = null;
 
   constructor(name: string, email: string, password: string) {
     this.name = name;
