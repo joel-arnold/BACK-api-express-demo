@@ -32,31 +32,30 @@ export const getUserById = async (id: string): Promise<User | null> => {
 export const createUser = async (userData: CreateUserData): Promise<User> => {
   const orm = dbManager.getORM();
   const em = orm.em.fork();
-  
-  // Verificar si el email ya existe
-  // Buscar incluyendo potenciales registros borrados (para decidir si permitir reuso de email)
+
   const existingUser = await em.findOne(User, { email: userData.email }, { filters: { softDelete: false } });
-  if (existingUser) {
-    // Si existe y no está borrado lógicamente, no permitir duplicado
-    if (!existingUser.deletedAt) {
-      throw new Error('El email ya está registrado');
-    }
-    // Si está borrado lógicamente, permitir reusar el email (opcional: también podríamos restaurar)
-  }
   
+  if (existingUser) {
+    if (existingUser.deletedAt !== null) {
+      throw new Error("El email ya está registrado en un usuario eliminado");
+    }
+
+    throw new Error("El email ya está registrado");
+  }
+
   // Encriptar la contraseña
   const hashedPassword = await hashPassword(userData.password);
-  
+
   // Crear nuevo usuario
   const newUser = new User(userData.name, userData.email, hashedPassword);
-  
+
   // Asegurar que los timestamps estén establecidos
   newUser.createdAt = new Date();
   newUser.updatedAt = new Date();
-  
+
   // Persistir en la base de datos
   await em.persistAndFlush(newUser);
-  
+
   return newUser;
 };
 
@@ -79,7 +78,7 @@ export const updateUser = async (id: string, userData: UpdateUserData): Promise<
     
     if (existingUser) {
       if (existingUser.deletedAt !== null) {
-        throw new Error('El email ya está registrado en usuario eliminado');
+        throw new Error('El email ya está registrado en un usuario eliminado');
       }
 
       throw new Error('El email ya está registrado');

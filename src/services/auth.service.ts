@@ -75,8 +75,12 @@ export const register = async (userData: RegisterData): Promise<AuthResponse> =>
   const em = orm.em.fork();
 
   // Verificar si el email ya existe
-  const existingUser = await em.findOne(User, { email: userData.email });
+  const existingUser = await em.findOne(User, { email: userData.email }, { filters: { softDelete: false } });
   if (existingUser) {
+    if (existingUser.deletedAt !== null) {
+        throw new Error('El email ya está registrado en un usuario eliminado');
+      }
+    
     throw new Error('El email ya está registrado');
   }
 
