@@ -29,11 +29,6 @@ export const getUserById = async (id: string): Promise<User | null> => {
 };
 
 export const createUser = async (userData: CreateUserData): Promise<User> => {
-  // Validación básica
-  if (!userData.name || !userData.email || !userData.password) {
-    throw new Error('Nombre, email y contraseña son requeridos');
-  }
-  
   const orm = dbManager.getORM();
   const em = orm.em.fork();
   

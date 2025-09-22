@@ -9,6 +9,7 @@ Este proyecto es una demostración de cómo crear una API REST con Node.js, Expr
 - **CRUD completo**: Crear, leer, actualizar y eliminar usuarios
 - **Persistencia en base de datos**: Uso de MySQL con MikroORM y decoradores
 - **Validación tipada**: Validaciones tanto en controladores como en servicios
+- **Validación con Joi**: Esquemas centralizados y middleware reusable
 - **Middleware personalizado**: Logger para tracking de requests
 - **Manejo de errores**: Respuestas consistentes y manejo de errores tipado
 - **ORM moderno**: MikroORM con decoradores TypeScript para mapeo de entidades
@@ -114,6 +115,56 @@ curl -X PUT http://localhost:3000/users/1 \
 ### Eliminar un usuario
 ```bash
 curl -X DELETE http://localhost:3000/users/1
+```
+
+## ✅ Validación con Joi
+
+Este proyecto utiliza Joi para validar entradas (body, params, query) antes de llegar a los controladores.
+
+### Middleware `validate`
+
+- Archivo: `src/middlewares/validate.ts`
+- Uso: `validate({ location: 'body' | 'params' | 'query', schema, abortEarly?: false, stripUnknown?: true })`
+- Comportamiento:
+   - Valida `req[location]` con el esquema provisto.
+   - Sanitiza removiendo campos no definidos en el esquema (`stripUnknown: true`).
+   - En caso de error, responde 400 con `error` y `errors` (detalle de Joi).
+
+### Esquemas disponibles
+
+- Archivo: `src/schemas/user.schema.ts`
+   - `createUserSchema`: requiere `name` (string 2-100) y `email` (formato válido).
+   - `updateUserSchema`: permite `name`/`email` opcionales, exige al menos un campo.
+   - `idParamSchema`: valida `id` como entero positivo.
+
+### Aplicación en rutas
+
+Archivo: `src/routes/user.routes.ts`
+
+```ts
+router.get('/:id', validate({ location: 'params', schema: idParamSchema }), userController.getUser);
+router.post('/', validate({ location: 'body', schema: createUserSchema }), userController.createUser);
+router.put('/:id',
+   validate({ location: 'params', schema: idParamSchema }),
+   validate({ location: 'body', schema: updateUserSchema }),
+   userController.updateUser
+);
+router.delete('/:id', validate({ location: 'params', schema: idParamSchema }), userController.deleteUser);
+```
+
+### Extender validaciones
+
+Para agregar nuevas reglas (por ejemplo, longitud de `name` o dominios de email), edita `src/schemas/user.schema.ts`:
+
+```ts
+const name = Joi.string().trim().min(2).max(100).required();
+const email = Joi.string().trim().email({ tlds: { allow: false } }).required();
+```
+
+Si necesitas validar `query` en una ruta, crea un esquema y úsalo así:
+
+```ts
+router.get('/', validate({ location: 'query', schema: listQuerySchema }), controller.list);
 ```
 
 ## 🎯 Conceptos Didácticos
